@@ -9,12 +9,17 @@ public class Main {
      * </ul>
      */
     public static void main(String... args) {
-        testPopulation();
-//        Population population = new Population(100, .05d);
-//        while (0 != population.mostFit.fitness()) {
-//            population.day();
-//            System.out.println(population);
-//        }
+        long startTime = System.nanoTime();
+        Population population = new Population(100, .25d);
+        int generation = 0;
+        while (0 != population.mostFit.fitness()) {
+            population.day();
+            System.out.println(population.mostFit);
+            generation++;
+        }
+        System.out.println("Generations: " + generation);
+        long endTime = System.nanoTime();
+        System.out.println("Running Time: " + (endTime - startTime) / 1000000 + " milliseconds");
     }
 
     /**

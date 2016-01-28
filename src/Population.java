@@ -5,7 +5,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class Population {
-    public static final String target = "Grant Alexander Toepfer";
+    public static final String target = "GRANT ALEXANDER TOEPFER";
     public Genome mostFit;
     public List<Genome> genes;
     public int numGenomes;
@@ -39,30 +39,23 @@ public class Population {
     public void day() {
         //kill weak half
         genes = genes.stream()
-                .sorted((g1, g2) -> Integer.compare(g1.fitness(), g2.fitness()))
-                .limit(numGenomes >> 1)
-                .collect(Collectors.toList());
+                .sorted((g1, g2) -> Integer.compare(g1.fitness(), g2.fitness())) //sort by fitness ascending
+                .limit(numGenomes >> 1)                                          //kill the later half
+                .collect(Collectors.toList());                                   //put remaining genes back in the list
 
         //create new genes
         Random random = new Random();
-        random.ints(numGenomes - genes.size(), 0, genes.size())
-                .mapToObj(genes::get)
-                .map(Genome::new)
-                .peek(g -> {
+        random.ints(numGenomes - genes.size(), 0, genes.size()) //create stream of indexes to existing genomes with the number of genomes we killed
+                .mapToObj(genes::get)                           //get the genomes from those indexes
+                .map(Genome::new)                               //map those genomes to new clones
+                .peek(g -> {                                    //crossover the genomes randomly
                     if (random.nextBoolean()) g.crossover(genes.get(random.nextInt(genes.size())));
                 })
-                .peek(Genome::mutate)
-                .forEach(genes::add);
+                .peek(Genome::mutate)                           //mutate the genomes
+                .forEach(genes::add);                           //add the new genomes to existing ones
 
         //get most fit
-        //shuffle to add some variation, sorting the list is stable, so the top 50 will usually never change
-        Collections.shuffle(genes);
-        genes = genes.stream()
-                .sorted((g1, g2) -> Integer.compare(g1.fitness(), g2.fitness()))
-                .collect(Collectors.toList());
-
-        mostFit = genes.stream()
-                .reduce((g1, g2) -> g1.fitness() < g2.fitness() ? g1 : g2).get();
+        mostFit = genes.stream().reduce((g1, g2) -> g1.fitness() < g2.fitness() ? g1 : g2).get();
     }
 
     /**
@@ -71,6 +64,14 @@ public class Population {
      */
     @Override
     public String toString() {
-        return mostFit.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Most fit: ");
+        sb.append(mostFit);
+        sb.append('\n');
+        for (Genome g : genes) {
+            sb.append(g).append('\n');
+        }
+        sb.append('\n');
+        return sb.toString();
     }
 }

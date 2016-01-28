@@ -105,6 +105,28 @@ public class Genome {
     public Integer fitness() {
         int n = name.length();
         int m = Population.target.length();
+
+        //start special fitness
+//        int[][] D = new int[n + 1][m + 1];
+//
+//        for (int i = 0; i <= n; i++) {
+//            D[i][0] = i;
+//        }
+//
+//        for (int i = 0; i <= m; i++) {
+//            D[0][i] = i;
+//        }
+//
+//        for (int i = 1; i <= n; i++) {
+//            for (int j = 1; j <= m; j++) {
+//                int change = name.charAt(i - 1) == Population.target.charAt(j - 1) ? 0 : 1;
+//                D[i][j] = Math.min(D[i - 1][j] + 1, Math.min(D[i][j - 1] + 1, D[i - 1][j - 1] + change));
+//            }
+//        }
+//
+//        return D[n][m];
+
+        //start normal fitness
         int l = Math.max(n, m);
 
         // Initialize f to the difference in length

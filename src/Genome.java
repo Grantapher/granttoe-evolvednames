@@ -1,21 +1,27 @@
+import java.util.Random;
+
 public class Genome {
-    public String name;
+    private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ -'";
+    public StringBuilder name;
     public double rate;
+    public Random random;
 
     /**
      * Initializes a Genome with value ‘A’ and assigns the internal mutation rate a double between 0 and 1.
      */
     public Genome(double mutationRate) {
-        name = "A";
+        name = new StringBuilder("A");
         rate = mutationRate;
+        random = new Random();
     }
 
     /**
      * A copy constructor that initializes a Genome with the same values as the input gene.
      */
     public Genome(Genome gene) {
-        this.name = gene.name;
+        this.name = new StringBuilder(gene.name.toString());
         this.rate = gene.rate;
+        random = new Random();
     }
 
     /**
@@ -30,7 +36,29 @@ public class Genome {
      * </ul>
      */
     public void mutate() {
+        // Add character
+        if (change()) {
+            name.insert(random.nextInt(name.length() + 1), getNewChar());
+        }
 
+        // Delete character
+        if (change() && name.length() > 0) {
+            name.deleteCharAt(random.nextInt(name.length()));
+        }
+
+        // Change character
+        if (change() && name.length() > 0) {
+            int index = random.nextInt(name.length());
+            name.replace(index, index + 1, String.valueOf(getNewChar()));
+        }
+    }
+
+    private boolean change() {
+        return random.nextDouble() < rate;
+    }
+
+    private char getNewChar() {
+        return ALPHABET.charAt(random.nextInt(ALPHABET.length()));
     }
 
     /**
@@ -50,7 +78,18 @@ public class Genome {
      * </ul>
      */
     public void crossover(Genome other) {
+        StringBuilder nextName = new StringBuilder();
+        for (int i = 0; ; i++) {
+            boolean parentIsThis = random.nextBoolean();
+            StringBuilder parent = parentIsThis ? name : other.name;
 
+            if (i < parent.length()) {
+                nextName.append(parent.charAt(i));
+            } else {
+                break;
+            }
+        }
+        name = nextName;
     }
 
     /**
@@ -64,7 +103,23 @@ public class Genome {
      * </ul>
      */
     public Integer fitness() {
+        int n = name.length();
+        int m = Population.target.length();
+        int l = Math.max(n, m);
 
+        // Initialize f to the difference in length
+        int f = Math.abs(m - n);
+
+        // Add a point to f for every difference in characters
+        for (int i = 0; i < l; i++) {
+            if (i >= Population.target.length()
+                    || i >= name.length()
+                    || Population.target.charAt(i) != name.charAt(i)) {
+                f++;
+            }
+        }
+
+        return f;
     }
 
     /**
@@ -72,7 +127,7 @@ public class Genome {
      */
     @Override
     public String toString() {
-
+        return String.format("(\"%s\", %d)", name.toString(), fitness());
     }
 }
 

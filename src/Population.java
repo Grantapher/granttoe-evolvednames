@@ -1,15 +1,20 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Population {
     public static final String target = "Grant Alexander Toepfer";
     public Genome mostFit;
     public List<Genome> genes;
+    public int numGenomes;
 
     /**
      * Initializes a Population with a number of default genomes.
      */
     public Population(Integer numGenomes, Double mutationRate) {
+        this.numGenomes = numGenomes;
         genes = new ArrayList<>(numGenomes);
         for (int i = 0; i < numGenomes; i++) {
             genes.add(new Genome(mutationRate));
@@ -32,7 +37,32 @@ public class Population {
      * </ul>
      */
     public void day() {
+        //kill weak half
+        genes = genes.stream()
+                .sorted((g1, g2) -> Integer.compare(g1.fitness(), g2.fitness()))
+                .limit(numGenomes >> 1)
+                .collect(Collectors.toList());
 
+        //create new genes
+        Random random = new Random();
+        random.ints(numGenomes - genes.size(), 0, genes.size())
+                .mapToObj(genes::get)
+                .map(Genome::new)
+                .peek(g -> {
+                    if (random.nextBoolean()) g.crossover(genes.get(random.nextInt(genes.size())));
+                })
+                .peek(Genome::mutate)
+                .forEach(genes::add);
+
+        //get most fit
+        //shuffle to add some variation, sorting the list is stable, so the top 50 will usually never change
+        Collections.shuffle(genes);
+        genes = genes.stream()
+                .sorted((g1, g2) -> Integer.compare(g1.fitness(), g2.fitness()))
+                .collect(Collectors.toList());
+
+        mostFit = genes.stream()
+                .reduce((g1, g2) -> g1.fitness() < g2.fitness() ? g1 : g2).get();
     }
 
     /**
@@ -41,6 +71,6 @@ public class Population {
      */
     @Override
     public String toString() {
-
+        return mostFit.toString();
     }
 }

@@ -9,24 +9,33 @@ public class Main {
      * </ul>
      */
     public static void main(String... args) {
-        Population population = new Population(100, .05d);
-        while (0 != population.mostFit.fitness()) {
-            population.day();
-            System.out.println(population);
-        }
+        testPopulation();
+//        Population population = new Population(100, .05d);
+//        while (0 != population.mostFit.fitness()) {
+//            population.day();
+//            System.out.println(population);
+//        }
     }
 
     /**
      * Tests the Genome class.
      */
-    public void testGenome() {
-
+    public static void testGenome() {
+        Genome genome = new Genome(.05);
+        for (int i = 0; i < 100; i++) {
+            genome.mutate();
+            System.out.println(genome);
+        }
     }
 
     /**
      * Tests the Population class.
      */
-    public void testPopulation() {
-
+    public static void testPopulation() {
+        Population population = new Population(100, .25d);
+        for (int i = 0; ; i++) {
+            population.day();
+            System.out.println(population);
+        }
     }
 }

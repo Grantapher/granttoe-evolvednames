@@ -35,11 +35,11 @@ public class Population {
      * </li>
      * </ul>
      */
-    public void day() {
+    public void day2() {
         //kill weak half
         genes = genes.stream()
                 .sorted((g1, g2) -> Integer.compare(g1.fitness(), g2.fitness())) //sort by fitness ascending
-                .limit(numGenomes >> 1)                                          //kill the later half
+                .limit(numGenomes >> 1)                                          //kill the latter half
                 .collect(Collectors.toList());                                   //put remaining genes back in the list
 
         //create new genes
@@ -49,6 +49,25 @@ public class Population {
                 .peek(this::crossoverHalf)                              //crossoverHalf half of the genes
                 .peek(Genome::mutate)                                   //mutate the genomes
                 .forEach(genes::add);                                   //add the new genomes to existing ones
+
+        //get most fit
+        mostFit = genes.stream().reduce((g1, g2) -> g1.fitness() < g2.fitness() ? g1 : g2).get();
+    }
+
+    public void day() {
+        //kill weak half
+        genes = genes.stream()
+                .sorted((g1, g2) -> Integer.compare(g1.fitness(), g2.fitness()))
+                .limit(numGenomes >> 1)
+                .collect(Collectors.toList());
+
+        //create new genes
+        new Random().ints(numGenomes - genes.size(), 0, genes.size())
+                .mapToObj(genes::get)
+                .map(Genome::new)
+                .peek(this::crossoverHalf)
+                .peek(Genome::mutate)
+                .forEach(genes::add);
 
         //get most fit
         mostFit = genes.stream().reduce((g1, g2) -> g1.fitness() < g2.fitness() ? g1 : g2).get();

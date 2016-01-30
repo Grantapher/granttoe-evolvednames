@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -44,18 +43,22 @@ public class Population {
                 .collect(Collectors.toList());                                   //put remaining genes back in the list
 
         //create new genes
-        Random random = new Random();
-        random.ints(numGenomes - genes.size(), 0, genes.size()) //create stream of indexes to existing genomes with the number of genomes we killed
-                .mapToObj(genes::get)                           //get the genomes from those indexes
-                .map(Genome::new)                               //map those genomes to new clones
-                .peek(g -> {                                    //crossover the genomes randomly
-                    if (random.nextBoolean()) g.crossover(genes.get(random.nextInt(genes.size())));
-                })
-                .peek(Genome::mutate)                           //mutate the genomes
-                .forEach(genes::add);                           //add the new genomes to existing ones
+        new Random().ints(numGenomes - genes.size(), 0, genes.size())   //create stream of indexes to existing genomes with the number of genomes we killed
+                .mapToObj(genes::get)                                   //get the genomes from those indexes
+                .map(Genome::new)                                       //change those genomes to new clones
+                .peek(this::crossoverHalf)                              //crossoverHalf half of the genes
+                .peek(Genome::mutate)                                   //mutate the genomes
+                .forEach(genes::add);                                   //add the new genomes to existing ones
 
         //get most fit
         mostFit = genes.stream().reduce((g1, g2) -> g1.fitness() < g2.fitness() ? g1 : g2).get();
+    }
+
+    private void crossoverHalf(Genome g) {
+        Random random = new Random();
+        if (random.nextBoolean()) {
+            g.crossover(genes.get(random.nextInt(genes.size())));
+        }
     }
 
     /**

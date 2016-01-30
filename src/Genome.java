@@ -5,14 +5,16 @@ public class Genome {
     public StringBuilder name;
     public double rate;
     public Random random;
+    private Integer fitness;
 
     /**
-     * Initializes a Genome with value ‘A’ and assigns the internal mutation rate a double between 0 and 1.
+     * Initializes a Genome with value ï¿½Aï¿½ and assigns the internal mutation rate a double between 0 and 1.
      */
     public Genome(double mutationRate) {
         name = new StringBuilder("A");
         rate = mutationRate;
         random = new Random();
+        setFitness();
     }
 
     /**
@@ -22,6 +24,7 @@ public class Genome {
         this.name = new StringBuilder(gene.name.toString());
         this.rate = gene.rate;
         random = new Random();
+        this.fitness = gene.fitness;
     }
 
     /**
@@ -51,6 +54,8 @@ public class Genome {
             int index = random.nextInt(name.length());
             name.replace(index, index + 1, String.valueOf(getNewChar()));
         }
+
+        setFitness();
     }
 
     private boolean change() {
@@ -76,6 +81,7 @@ public class Genome {
      * </ul>
      * </li>
      * </ul>
+     * <br>
      */
     public void crossover(Genome other) {
         StringBuilder nextName = new StringBuilder();
@@ -90,6 +96,12 @@ public class Genome {
             }
         }
         name = nextName;
+
+        setFitness();
+    }
+
+    public Integer fitness() {
+        return fitness;
     }
 
     /**
@@ -102,7 +114,7 @@ public class Genome {
      * <li>Return f .</li>
      * </ul>
      */
-    public Integer fitness() {
+    private void setFitness() {
         int n = name.length();
         int m = Population.target.length();
 
@@ -124,8 +136,8 @@ public class Genome {
 //            }
 //        }
 //
-//        return D[n][m];
-
+//        fitness = D[n][m];
+//
         //start normal fitness
         int l = Math.max(n, m);
 
@@ -141,11 +153,11 @@ public class Genome {
             }
         }
 
-        return f;
+        fitness = f;
     }
 
     /**
-     * Display the Genome’s character string and fitness in an easy to read format.
+     * Display the Genome's character string and fitness in an easy to read format.
      */
     @Override
     public String toString() {

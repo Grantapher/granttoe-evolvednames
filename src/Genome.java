@@ -1,6 +1,6 @@
 import java.util.Random;
 
-public class Genome {
+public class Genome implements Comparable<Genome> {
     private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ -'";
     public StringBuilder name;
     public double rate;
@@ -162,6 +162,11 @@ public class Genome {
     @Override
     public String toString() {
         return String.format("(\"%s\", %d)", name.toString(), fitness());
+    }
+
+    @Override
+    public int compareTo(Genome that) {
+        return Integer.compare(this.fitness(), that.fitness());
     }
 }
 

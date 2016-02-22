@@ -1,7 +1,7 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class Population {
     public static final String target = "GRANT ALEXANDER TOEPFER";
@@ -35,48 +35,53 @@ public class Population {
      * </li>
      * </ul>
      */
-    public void day2() {
-        //kill weak half
-        genes = genes.stream()
-                .sorted((g1, g2) -> Integer.compare(g1.fitness(), g2.fitness())) //sort by fitness ascending
-                .limit(numGenomes >> 1)                                          //kill the latter half
-                .collect(Collectors.toList());                                   //put remaining genes back in the list
-
-        //create new genes
-        new Random().ints(numGenomes - genes.size(), 0, genes.size())   //create stream of indexes to existing genomes with the number of genomes we killed
-                .mapToObj(genes::get)                                   //get the genomes from those indexes
-                .map(Genome::new)                                       //change those genomes to new clones
-                .peek(this::crossoverHalf)                              //crossoverHalf half of the genes
-                .peek(Genome::mutate)                                   //mutate the genomes
-                .forEach(genes::add);                                   //add the new genomes to existing ones
-
-        //get most fit
-        mostFit = genes.stream().reduce((g1, g2) -> g1.fitness() < g2.fitness() ? g1 : g2).get();
-    }
+//    public void day2() {
+//        //kill weak half
+//        genes = genes.stream()
+//                .sorted((g1, g2) -> Integer.compare(g1.fitness(), g2.fitness())) //sort by fitness ascending
+//                .limit(numGenomes >> 1)                                          //kill the latter half
+//                .collect(Collectors.toList());                                   //put remaining genes back in the list
+//
+//        //create new genes
+//        new Random().ints(numGenomes - genes.size(), 0, genes.size())   //create stream of indexes to existing genomes with the number of genomes we killed
+//                .mapToObj(genes::get)                                   //get the genomes from those indexes
+//                .map(Genome::new)                                       //change those genomes to new clones
+//                .peek(this::crossoverHalf)                              //crossoverHalf half of the genes
+//                .peek(Genome::mutate)                                   //mutate the genomes
+//                .forEach(genes::add);                                   //add the new genomes to existing ones
+//
+//        //get most fit
+//        mostFit = genes.stream().reduce((g1, g2) -> g1.fitness() < g2.fitness() ? g1 : g2).get();
+//    }
 
     public void day() {
         //kill weak half
-        genes = genes.stream()
-                .sorted((g1, g2) -> Integer.compare(g1.fitness(), g2.fitness()))
-                .limit(numGenomes >> 1)
-                .collect(Collectors.toList());
+        Collections.sort(genes);
+        for (int i = numGenomes >> 1; i < genes.size(); i++) {
+            genes.remove(i);
+        }
 
         //create new genes
-        new Random().ints(numGenomes - genes.size(), 0, genes.size())
-                .mapToObj(genes::get)
-                .map(Genome::new)
-                .peek(this::crossoverHalf)
-                .peek(Genome::mutate)
-                .forEach(genes::add);
+        Random random = new Random();
+        int maxIndex = genes.size();
+        for (int i = 0; i < numGenomes - genes.size(); i++) {
+            int copyIndex = random.nextInt(maxIndex);
+            Genome oldGenome = genes.get(copyIndex);
+            Genome newGenome = new Genome(oldGenome);
+            if (random.nextBoolean()) {
+                int crossoverIndex = random.nextInt(maxIndex);
+                Genome crossoverGenome = genes.get(crossoverIndex);
+                newGenome.crossover(crossoverGenome);
+            }
+            newGenome.mutate();
+            genes.add(newGenome);
+        }
 
         //get most fit
-        mostFit = genes.stream().reduce((g1, g2) -> g1.fitness() < g2.fitness() ? g1 : g2).get();
-    }
-
-    private void crossoverHalf(Genome g) {
-        Random random = new Random();
-        if (random.nextBoolean()) {
-            g.crossover(genes.get(random.nextInt(genes.size())));
+        mostFit = null;
+        for (Genome genome : genes) {
+            if (null == mostFit) mostFit = genome;
+            else mostFit = mostFit.compareTo(genome) <= 0 ? mostFit : genome;
         }
     }
 
